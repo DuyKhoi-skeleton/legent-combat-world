@@ -1,0 +1,1823 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>⚡ LEGEND COMBAT WORLD - PRO MAX ⚡</title>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    user-select: none;
+  }
+  
+  body { 
+    margin: 0; 
+    overflow: hidden; 
+    background: #0a0a0a;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  
+  canvas { 
+    display: block; 
+    background: #1a2a3a;
+    filter: drop-shadow(0 0 10px rgba(0,0,0,0.5));
+  }
+  
+  /* ===== UI BUTTONS ===== */
+  .ui-button {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    border-radius: 25px;
+    background: rgba(0,0,0,0.8);
+    border: 2px solid #ffd700;
+    color: #ffd700;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    backdrop-filter: blur(5px);
+    z-index: 1000;
+    transition: all 0.3s;
+    box-shadow: 0 0 15px rgba(255,215,0,0.3);
+  }
+  
+  .ui-button:hover {
+    transform: scale(1.1);
+    background: #ffd700;
+    color: black;
+    box-shadow: 0 0 30px #ffd700;
+  }
+  
+  .ui-button.active {
+    background: #ffd700;
+    color: black;
+  }
+  
+  #toggleGuide {
+    top: 20px;
+    left: 20px;
+    z-index: 2000;
+  }
+  
+  #toggleStats {
+    top: 20px;
+    left: 80px;
+    z-index: 2000;
+  }
+  
+  /* ===== GUIDE PANEL ===== */
+  #guidePanel {
+    position: absolute;
+    top: 80px;
+    left: 20px;
+    width: 320px;
+    max-height: 80vh;
+    overflow-y: auto;
+    background: rgba(10,10,20,0.95);
+    border: 3px solid #ffd700;
+    border-radius: 15px;
+    padding: 20px;
+    color: white;
+    backdrop-filter: blur(10px);
+    z-index: 1999;
+    transition: transform 0.3s, opacity 0.3s;
+    box-shadow: 0 0 30px rgba(255,215,0,0.3);
+  }
+  
+  #guidePanel.hidden {
+    transform: translateX(-400px);
+    opacity: 0;
+    pointer-events: none;
+  }
+  
+  #guidePanel h2 {
+    color: #ffd700;
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 24px;
+    border-bottom: 2px solid #ffd700;
+    padding-bottom: 10px;
+  }
+  
+  .guide-section {
+    margin-bottom: 25px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 10px;
+    padding: 15px;
+  }
+  
+  .guide-section h3 {
+    color: #4a90e2;
+    margin-bottom: 15px;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .guide-item {
+    display: flex;
+    align-items: center;
+    margin: 8px 0;
+    padding: 8px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 8px;
+    transition: transform 0.2s;
+  }
+  
+  .guide-item:hover {
+    transform: translateX(5px);
+    background: rgba(255,215,0,0.2);
+  }
+  
+  .guide-key {
+    background: #333;
+    border: 2px solid #ffd700;
+    padding: 5px 12px;
+    border-radius: 8px;
+    color: #ffd700;
+    font-weight: bold;
+    min-width: 70px;
+    text-align: center;
+    margin-right: 12px;
+    font-size: 14px;
+  }
+  
+  .guide-desc {
+    color: #ddd;
+    font-size: 14px;
+  }
+  
+  .guide-item.mobile .guide-key {
+    background: #4a90e2;
+    border-color: #4a90e2;
+    color: white;
+  }
+  
+  /* ===== MOBILE CONTROLS ===== */
+  #mobileControls {
+    position: absolute;
+    bottom: 30px;
+    left: 0;
+    width: 100%;
+    display: none;
+    flex-direction: column;
+    gap: 20px;
+    padding: 0 20px;
+    pointer-events: none;
+    z-index: 10000;
+  }
+  
+  #mobileControls.active {
+    display: flex;
+  }
+  
+  /* Joystick container */
+  .joystick-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    pointer-events: none;
+  }
+  
+  .joystick-area {
+    width: 150px;
+    height: 150px;
+    background: rgba(0,0,0,0.6);
+    border: 3px solid #ffd700;
+    border-radius: 75px;
+    position: relative;
+    backdrop-filter: blur(5px);
+    pointer-events: auto;
+    touch-action: none;
+    box-shadow: 0 0 20px rgba(255,215,0,0.3);
+  }
+  
+  .joystick {
+    width: 60px;
+    height: 60px;
+    background: rgba(255,215,0,0.6);
+    border: 3px solid #ffd700;
+    border-radius: 30px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    transition: 0.05s;
+    box-shadow: 0 0 15px #ffd700;
+  }
+  
+  /* Action buttons grid */
+  .action-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    pointer-events: auto;
+  }
+  
+  .action-row {
+    display: flex;
+    gap: 15px;
+    justify-content: flex-end;
+  }
+  
+  .mobile-btn {
+    width: 70px;
+    height: 70px;
+    border-radius: 35px;
+    background: rgba(0,0,0,0.7);
+    border: 3px solid;
+    font-size: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    backdrop-filter: blur(5px);
+    transition: all 0.1s;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    touch-action: manipulation;
+    font-weight: bold;
+  }
+  
+  .mobile-btn:active {
+    transform: scale(0.85);
+  }
+  
+  .mobile-btn.attack {
+    border-color: #ff4444;
+    color: #ff4444;
+    background: rgba(255,68,68,0.2);
+  }
+  
+  .mobile-btn.attack:active {
+    background: #ff4444;
+    color: white;
+    box-shadow: 0 0 30px #ff4444;
+  }
+  
+  .mobile-btn.skill {
+    border-color: #ffaa00;
+    color: #ffaa00;
+    background: rgba(255,170,0,0.2);
+  }
+  
+  .mobile-btn.skill:active {
+    background: #ffaa00;
+    color: black;
+    box-shadow: 0 0 30px #ffaa00;
+  }
+  
+  .mobile-btn.heal {
+    border-color: #44ff44;
+    color: #44ff44;
+    background: rgba(68,255,68,0.2);
+  }
+  
+  .mobile-btn.heal:active {
+    background: #44ff44;
+    color: black;
+    box-shadow: 0 0 30px #44ff44;
+  }
+  
+  .mobile-btn.item {
+    border-color: #ffd700;
+    color: #ffd700;
+    background: rgba(255,215,0,0.2);
+    font-size: 24px;
+  }
+  
+  .mobile-btn.item:active {
+    background: #ffd700;
+    color: black;
+    box-shadow: 0 0 30px #ffd700;
+  }
+  
+  /* Mobile inventory bar */
+  #mobileInventoryBar {
+    width: 100%;
+    height: 70px;
+    background: rgba(0,0,0,0.7);
+    border: 3px solid #ffd700;
+    border-radius: 35px;
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    padding: 5px;
+    gap: 5px;
+    pointer-events: auto;
+    margin-top: 10px;
+    box-shadow: 0 0 20px rgba(255,215,0,0.3);
+  }
+  
+  .mobile-inventory-slot {
+    flex: 1;
+    height: 54px;
+    background: rgba(255,255,255,0.1);
+    border: 2px solid #4a90e2;
+    border-radius: 27px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: white;
+  }
+  
+  .mobile-inventory-slot.selected {
+    border-color: #ffd700;
+    background: rgba(255,215,0,0.2);
+    transform: scale(1.05);
+    box-shadow: 0 0 15px #ffd700;
+  }
+  
+  .mobile-item-count {
+    position: absolute;
+    bottom: 2px;
+    right: 8px;
+    font-size: 12px;
+    color: #ffd700;
+    background: rgba(0,0,0,0.5);
+    padding: 2px 6px;
+    border-radius: 10px;
+  }
+  
+  /* ===== MAIN UI ===== */
+  #ui {
+    position: absolute;
+    top: 20px;
+    left: 140px;
+    color: white;
+    font-family: 'Segoe UI', Arial;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    background: rgba(0,0,0,0.7);
+    padding: 20px;
+    border-radius: 15px;
+    backdrop-filter: blur(5px);
+    border: 2px solid #ffd700;
+    box-shadow: 0 0 20px rgba(255,215,0,0.3);
+    min-width: 250px;
+    z-index: 100;
+    transition: transform 0.3s, opacity 0.3s;
+  }
+  
+  #ui.hidden {
+    transform: translateX(-400px);
+    opacity: 0;
+    pointer-events: none;
+  }
+  
+  #ui h3 {
+    color: #ffd700;
+    margin-bottom: 15px;
+    text-align: center;
+    font-size: 24px;
+    letter-spacing: 2px;
+  }
+  
+  .stat-bar {
+    width: 100%;
+    height: 20px;
+    background: #333;
+    border-radius: 10px;
+    margin: 5px 0 15px 0;
+    overflow: hidden;
+    border: 1px solid #555;
+  }
+  
+  .hp-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #ff4444, #ff8888);
+    width: 100%;
+    transition: width 0.3s;
+  }
+  
+  .exp-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #44ff44, #88ff88);
+    width: 0%;
+    transition: width 0.3s;
+  }
+  
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    margin: 8px 0;
+    padding: 5px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 5px;
+  }
+  
+  .stat-label {
+    color: #aaa;
+  }
+  
+  .stat-value {
+    color: #ffd700;
+    font-weight: bold;
+  }
+  
+  #inventory {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    color: white;
+    background: rgba(0,0,0,0.7);
+    padding: 20px;
+    border-radius: 15px;
+    backdrop-filter: blur(5px);
+    border: 2px solid #4a90e2;
+    box-shadow: 0 0 20px rgba(74,144,226,0.3);
+    max-width: 300px;
+    z-index: 100;
+    transition: transform 0.3s, opacity 0.3s;
+  }
+  
+  #inventory.hidden {
+    transform: translateX(400px);
+    opacity: 0;
+    pointer-events: none;
+  }
+  
+  #inventory h3 {
+    color: #4a90e2;
+    margin-bottom: 15px;
+    text-align: center;
+    font-size: 20px;
+  }
+  
+  .inventory-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 60px);
+    gap: 10px;
+    margin-bottom: 15px;
+  }
+  
+  .inventory-slot {
+    width: 60px;
+    height: 60px;
+    background: rgba(255,255,255,0.1);
+    border: 2px solid #4a90e2;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .inventory-slot:hover {
+    transform: scale(1.1);
+    border-color: #ffd700;
+    box-shadow: 0 0 15px #ffd700;
+  }
+  
+  .inventory-slot.selected {
+    border-color: #ffd700;
+    box-shadow: 0 0 20px #ffd700;
+  }
+  
+  .item-count {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    font-size: 12px;
+    color: #ffd700;
+    background: rgba(0,0,0,0.5);
+    padding: 2px 4px;
+    border-radius: 5px;
+  }
+  
+  #minimap {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    width: 200px;
+    height: 200px;
+    background: rgba(0,0,0,0.5);
+    border: 3px solid #4a90e2;
+    border-radius: 15px;
+    overflow: hidden;
+    backdrop-filter: blur(5px);
+    z-index: 100;
+    transition: opacity 0.3s;
+  }
+  
+  #minimap.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+  
+  .damage-number {
+    position: absolute;
+    color: #ff4444;
+    font-weight: bold;
+    font-size: 20px;
+    pointer-events: none;
+    animation: floatUp 1s ease-out forwards;
+    text-shadow: 2px 2px 2px black;
+  }
+  
+  @keyframes floatUp {
+    0% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-50px);
+    }
+  }
+  
+  .level-up-effect {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #ffd700;
+    font-size: 48px;
+    font-weight: bold;
+    text-shadow: 0 0 20px #ffaa00;
+    animation: levelUp 2s ease-out forwards;
+    pointer-events: none;
+    z-index: 1000;
+  }
+  
+  @keyframes levelUp {
+    0% {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.5);
+    }
+    50% {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1.5);
+    }
+    100% {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(2);
+    }
+  }
+  
+  #bossWarning {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #ff0000;
+    font-size: 60px;
+    font-weight: bold;
+    text-shadow: 0 0 30px #ff0000;
+    animation: bossWarning 2s infinite;
+    display: none;
+    z-index: 1000;
+    pointer-events: none;
+  }
+  
+  @keyframes bossWarning {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+    50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+  }
+  
+  /* Mobile responsive adjustments */
+  @media (max-width: 768px) {
+    #ui {
+      top: 10px;
+      left: 70px;
+      padding: 10px;
+      min-width: 150px;
+      font-size: 12px;
+    }
+    
+    #inventory {
+      display: none;
+    }
+    
+    #minimap {
+      width: 100px;
+      height: 100px;
+      bottom: 250px;
+    }
+    
+    #toggleStats {
+      left: 70px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="game"></canvas>
+
+<!-- UI Buttons -->
+<div class="ui-button" id="toggleGuide" title="Bật/tắt hướng dẫn">📖</div>
+<div class="ui-button" id="toggleStats" title="Bật/tắt bảng chỉ số">📊</div>
+
+<!-- Guide Panel -->
+<div id="guidePanel">
+  <h2>📚 HƯỚNG DẪN CHI TIẾT</h2>
+  
+  <div class="guide-section">
+    <h3>💻 ĐIỀU KHIỂN PC</h3>
+    <div class="guide-item">
+      <span class="guide-key">WASD</span>
+      <span class="guide-desc">Di chuyển</span>
+    </div>
+    <div class="guide-item">
+      <span class="guide-key">E</span>
+      <span class="guide-desc">Tấn công</span>
+    </div>
+    <div class="guide-item">
+      <span class="guide-key">Q</span>
+      <span class="guide-desc">Dùng item đã chọn</span>
+    </div>
+    <div class="guide-item">
+      <span class="guide-key">F</span>
+      <span class="guide-desc">Hồi máu nhanh</span>
+    </div>
+    <div class="guide-item">
+      <span class="guide-key">SPACE</span>
+      <span class="guide-desc">Kỹ năng đặc biệt</span>
+    </div>
+    <div class="guide-item">
+      <span class="guide-key">SHIFT</span>
+      <span class="guide-desc">Chạy nhanh</span>
+    </div>
+    <div class="guide-item">
+      <span class="guide-key">1-4</span>
+      <span class="guide-desc">Chọn ô inventory</span>
+    </div>
+  </div>
+  
+  <div class="guide-section">
+    <h3>📱 ĐIỀU KHIỂN MOBILE</h3>
+    <div class="guide-item mobile">
+      <span class="guide-key">🕹️ Joystick</span>
+      <span class="guide-desc">Kéo để di chuyển</span>
+    </div>
+    <div class="guide-item mobile">
+      <span class="guide-key">🔴 Nút ĐỎ</span>
+      <span class="guide-desc">Tấn công (giữ)</span>
+    </div>
+    <div class="guide-item mobile">
+      <span class="guide-key">🟡 Nút VÀNG</span>
+      <span class="guide-desc">Kỹ năng đặc biệt</span>
+    </div>
+    <div class="guide-item mobile">
+      <span class="guide-key">🟢 Nút XANH</span>
+      <span class="guide-desc">Hồi máu</span>
+    </div>
+    <div class="guide-item mobile">
+      <span class="guide-key">📦 Thanh Item</span>
+      <span class="guide-desc">Chọn và dùng item</span>
+    </div>
+  </div>
+  
+  <div class="guide-section">
+    <h3>📦 CÁC LOẠI ITEM</h3>
+    <div class="guide-item">
+      <span class="guide-key">🗡️</span>
+      <span class="guide-desc">Sword: +3 damage</span>
+    </div>
+    <div class="guide-item">
+      <span class="guide-key">🪓</span>
+      <span class="guide-desc">Axe: +5 damage</span>
+    </div>
+    <div class="guide-item">
+      <span class="guide-key">🛡️</span>
+      <span class="guide-desc">Shield: +2 defense</span>
+    </div>
+    <div class="guide-item">
+      <span class="guide-key">🦺</span>
+      <span class="guide-desc">Armor: +4 defense</span>
+    </div>
+    <div class="guide-item">
+      <span class="guide-key">🧪</span>
+      <span class="guide-desc">Potion: hồi 30 HP</span>
+    </div>
+    <div class="guide-item">
+      <span class="guide-key">💍</span>
+      <span class="guide-desc">Ring: +5% crit</span>
+    </div>
+    <div class="guide-item">
+      <span class="guide-key">📿</span>
+      <span class="guide-desc">Amulet: +50 HP</span>
+    </div>
+    <div class="guide-item">
+      <span class="guide-key">👢</span>
+      <span class="guide-desc">Boots: +1 speed</span>
+    </div>
+  </div>
+  
+  <div class="guide-section">
+    <h3>👾 QUÁI VẬT</h3>
+    <div class="guide-item">
+      <span class="guide-key" style="background: #ff6b6b">Goblin</span>
+      <span class="guide-desc">Máu 30, dmg 5</span>
+    </div>
+    <div class="guide-item">
+      <span class="guide-key" style="background: #c44">Orc</span>
+      <span class="guide-desc">Máu 60, dmg 8</span>
+    </div>
+    <div class="guide-item">
+      <span class="guide-key" style="background: #aaa">Skeleton</span>
+      <span class="guide-desc">Máu 40, dmg 6</span>
+    </div>
+    <div class="guide-item">
+      <span class="guide-key" style="background: #96f">Dark Mage</span>
+      <span class="guide-desc">Máu 50, dmg 12</span>
+    </div>
+    <div class="guide-item">
+      <span class="guide-key" style="background: #f0f">BOSS</span>
+      <span class="guide-desc">Máu 500, dmg 20</span>
+    </div>
+  </div>
+</div>
+
+<!-- Mobile Controls (tự động hiện trên mobile) -->
+<div id="mobileControls">
+  <div class="joystick-container">
+    <div class="joystick-area" id="joystickArea">
+      <div class="joystick" id="joystick"></div>
+    </div>
+    
+    <div class="action-grid">
+      <div class="action-row">
+        <div class="mobile-btn attack" id="mobileAttack" title="Tấn công">⚔️</div>
+        <div class="mobile-btn skill" id="mobileSkill" title="Kỹ năng">✨</div>
+      </div>
+      <div class="action-row">
+        <div class="mobile-btn heal" id="mobileHeal" title="Hồi máu">💊</div>
+        <div class="mobile-btn item" id="mobileInventory" title="Chuyển item">📦</div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Mobile Inventory Bar -->
+  <div id="mobileInventoryBar"></div>
+</div>
+
+<div id="ui">
+  <h3>⚔️ LEGEND COMBAT ⚔️</h3>
+  <div class="stat-row">
+    <span class="stat-label">❤️ HP</span>
+    <span class="stat-value" id="hpDisplay">100/100</span>
+  </div>
+  <div class="stat-bar">
+    <div class="hp-bar" id="hpBar" style="width:100%"></div>
+  </div>
+  
+  <div class="stat-row">
+    <span class="stat-label">✨ EXP</span>
+    <span class="stat-value" id="expDisplay">0/100</span>
+  </div>
+  <div class="stat-bar">
+    <div class="exp-bar" id="expBar" style="width:0%"></div>
+  </div>
+  
+  <div class="stat-row">
+    <span class="stat-label">👑 Level</span>
+    <span class="stat-value" id="levelDisplay">1</span>
+  </div>
+  <div class="stat-row">
+    <span class="stat-label">⚔️ Damage</span>
+    <span class="stat-value" id="damageDisplay">4</span>
+  </div>
+  <div class="stat-row">
+    <span class="stat-label">🛡️ Defense</span>
+    <span class="stat-value" id="defenseDisplay">0</span>
+  </div>
+  <div class="stat-row">
+    <span class="stat-label">💨 Speed</span>
+    <span class="stat-value" id="speedDisplay">3</span>
+  </div>
+  <div class="stat-row">
+    <span class="stat-label">🎯 Crit Rate</span>
+    <span class="stat-value" id="critDisplay">5%</span>
+  </div>
+  <div class="stat-row">
+    <span class="stat-label">⚡ Kill Count</span>
+    <span class="stat-value" id="killDisplay">0</span>
+  </div>
+</div>
+
+<div id="inventory">
+  <h3>🎒 INVENTORY</h3>
+  <div class="inventory-grid" id="inventoryGrid"></div>
+  <div style="text-align: center; color: #aaa; font-size: 12px; margin-top: 10px;">
+    Click item để sử dụng | Nhấn số 1-4 để chọn ô
+  </div>
+</div>
+
+<div id="minimap">
+  <canvas id="minimapCanvas" width="200" height="200"></canvas>
+</div>
+
+<div id="bossWarning">🔥 BOSS INCOMING! 🔥</div>
+
+<script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+const ui = document.getElementById("ui");
+const minimapCanvas = document.getElementById("minimapCanvas");
+const minimapCtx = minimapCanvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+// ================= DETECT MOBILE =================
+function isMobile() {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+}
+
+// Auto enable mobile controls if on mobile
+const mobileMode = isMobile();
+
+// ================= UI STATE =================
+let guideVisible = true;
+let statsVisible = true;
+
+// Toggle guide
+document.getElementById('toggleGuide').addEventListener('click', () => {
+  guideVisible = !guideVisible;
+  const guidePanel = document.getElementById('guidePanel');
+  const toggleBtn = document.getElementById('toggleGuide');
+  
+  if (guideVisible) {
+    guidePanel.classList.remove('hidden');
+    toggleBtn.classList.add('active');
+  } else {
+    guidePanel.classList.add('hidden');
+    toggleBtn.classList.remove('active');
+  }
+});
+
+// Toggle stats panel
+document.getElementById('toggleStats').addEventListener('click', () => {
+  statsVisible = !statsVisible;
+  const statsPanel = document.getElementById('ui');
+  const inventoryPanel = document.getElementById('inventory');
+  const minimapPanel = document.getElementById('minimap');
+  const toggleBtn = document.getElementById('toggleStats');
+  
+  if (statsVisible) {
+    statsPanel.classList.remove('hidden');
+    inventoryPanel.classList.remove('hidden');
+    minimapPanel.classList.remove('hidden');
+    toggleBtn.classList.add('active');
+  } else {
+    statsPanel.classList.add('hidden');
+    inventoryPanel.classList.add('hidden');
+    minimapPanel.classList.add('hidden');
+    toggleBtn.classList.remove('active');
+  }
+});
+
+// Show/hide controls based on device
+if (mobileMode) {
+  document.getElementById('mobileControls').classList.add('active');
+}
+
+// ================= MOBILE CONTROLS =================
+let joystickActive = false;
+let joystickVector = { x: 0, y: 0 };
+
+const joystickArea = document.getElementById('joystickArea');
+const joystick = document.getElementById('joystick');
+
+if (mobileMode) {
+  joystickArea.addEventListener('touchstart', handleJoystickStart);
+  joystickArea.addEventListener('touchmove', handleJoystickMove);
+  joystickArea.addEventListener('touchend', handleJoystickEnd);
+  joystickArea.addEventListener('touchcancel', handleJoystickEnd);
+}
+
+function handleJoystickStart(e) {
+  e.preventDefault();
+  joystickActive = true;
+}
+
+function handleJoystickMove(e) {
+  if (!joystickActive) return;
+  e.preventDefault();
+  
+  const rect = joystickArea.getBoundingClientRect();
+  const centerX = rect.left + rect.width / 2;
+  const centerY = rect.top + rect.height / 2;
+  
+  let clientX, clientY;
+  
+  if (e.touches) {
+    clientX = e.touches[0].clientX;
+    clientY = e.touches[0].clientY;
+  } else {
+    clientX = e.clientX;
+    clientY = e.clientY;
+  }
+  
+  let dx = clientX - centerX;
+  let dy = clientY - centerY;
+  
+  // Limit to joystick radius
+  const maxDistance = 50;
+  const distance = Math.sqrt(dx*dx + dy*dy);
+  
+  if (distance > maxDistance) {
+    dx = (dx / distance) * maxDistance;
+    dy = (dy / distance) * maxDistance;
+  }
+  
+  joystick.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+  
+  // Normalize vector for movement
+  joystickVector.x = dx / maxDistance;
+  joystickVector.y = dy / maxDistance;
+}
+
+function handleJoystickEnd(e) {
+  e.preventDefault();
+  joystickActive = false;
+  joystick.style.transform = 'translate(-50%, -50%)';
+  joystickVector.x = 0;
+  joystickVector.y = 0;
+}
+
+// Mobile action buttons
+if (mobileMode) {
+  document.getElementById('mobileAttack').addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    keys['e'] = true;
+  });
+  
+  document.getElementById('mobileAttack').addEventListener('touchend', (e) => {
+    e.preventDefault();
+    keys['e'] = false;
+  });
+  
+  document.getElementById('mobileSkill').addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    keys[' '] = true;
+  });
+  
+  document.getElementById('mobileSkill').addEventListener('touchend', (e) => {
+    e.preventDefault();
+    keys[' '] = false;
+  });
+  
+  document.getElementById('mobileHeal').addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    keys['f'] = true;
+  });
+  
+  document.getElementById('mobileHeal').addEventListener('touchend', (e) => {
+    e.preventDefault();
+    keys['f'] = false;
+  });
+  
+  document.getElementById('mobileInventory').addEventListener('click', (e) => {
+    e.preventDefault();
+    // Cycle through inventory slots
+    selectedInventorySlot = (selectedInventorySlot + 1) % 8;
+    updateInventoryDisplay();
+    updateMobileInventoryBar();
+  });
+}
+
+// ================= UPDATE MOBILE INVENTORY BAR =================
+function updateMobileInventoryBar() {
+  if (!mobileMode) return;
+  
+  const bar = document.getElementById('mobileInventoryBar');
+  let html = '';
+  
+  for (let i = 0; i < 4; i++) { // Chỉ hiện 4 ô trên mobile
+    const item = inventory[i];
+    const selectedClass = i === selectedInventorySlot ? 'mobile-inventory-slot selected' : 'mobile-inventory-slot';
+    
+    if (item) {
+      const itemData = itemDatabase[item];
+      // Count occurrences in first 4 slots
+      const count = inventory.filter((_, index) => index < 4 && inventory[index] === item).length;
+      
+      html += `<div class="${selectedClass}" onclick="useMobileInventoryItem(${i})">
+        ${itemData.emoji}
+        ${count > 1 ? `<span class="mobile-item-count">${count}</span>` : ''}
+      </div>`;
+    } else {
+      html += `<div class="${selectedClass}" onclick="useMobileInventoryItem(${i})">❓</div>`;
+    }
+  }
+  
+  bar.innerHTML = html;
+}
+
+// ================= USE MOBILE INVENTORY ITEM =================
+function useMobileInventoryItem(index) {
+  useInventoryItem(index);
+  updateMobileInventoryBar();
+}
+
+// ================= CONSTANTS =================
+const mapWidth = 3000;
+const mapHeight = 3000;
+const maxEnemies = 20;
+const safeZoneRadius = 400;
+
+// ================= GAME STATE =================
+let keys = {};
+let gameTime = 0;
+let killCount = 0;
+let damageNumbers = [];
+let selectedInventorySlot = 0;
+let showLevelUpEffect = false;
+let levelUpTimer = 0;
+let specialSkillCooldown = 0;
+let bossSpawnTimer = 0;
+let bossActive = false;
+
+document.addEventListener("keydown", e => {
+  if (!mobileMode) { // Chỉ nhận key trên PC
+    keys[e.key.toLowerCase()] = true;
+    
+    // Number keys for inventory
+    if (e.key >= '1' && e.key <= '4') {
+      selectedInventorySlot = parseInt(e.key) - 1;
+      updateInventoryDisplay();
+      if (mobileMode) updateMobileInventoryBar();
+    }
+  }
+});
+
+document.addEventListener("keyup", e => {
+  if (!mobileMode) {
+    keys[e.key.toLowerCase()] = false;
+  }
+});
+
+// ================= PLAYER =================
+let player = {
+  x:1500,
+  y:1500,
+  w:30,
+  h:40,
+  speed:3,
+  baseSpeed:3,
+  hp:100,
+  maxHp:100,
+  baseDamage:4,
+  damage:4,
+  defense:0,
+  critRate:0.05,
+  critDamage:1.5,
+  level:1,
+  exp:0,
+  expToNext:100,
+  attackCooldown:0,
+  skillCooldown:0,
+  invincible:false,
+  invincibleTimer:0
+};
+
+// ================= ENEMIES =================
+let enemies = [];
+
+// Enemy types
+const enemyTypes = [
+  { name: "Goblin", color: "#ff6b6b", hp: 30, damage: 5, speed: 1.2, exp: 10, size: 15 },
+  { name: "Orc", color: "#c44", hp: 60, damage: 8, speed: 0.8, exp: 20, size: 20 },
+  { name: "Skeleton", color: "#aaa", hp: 40, damage: 6, speed: 1.5, exp: 15, size: 16 },
+  { name: "Dark Mage", color: "#96f", hp: 50, damage: 12, speed: 1.0, exp: 25, size: 18 },
+  { name: "Boss", color: "#f0f", hp: 500, damage: 20, speed: 1.3, exp: 100, size: 35, isBoss: true }
+];
+
+// ================= ITEMS =================
+let drops = [];
+let inventory = [];
+
+const itemDatabase = {
+  sword: { name: "🗡️ Sword", type: "weapon", damage: 3, color: "#ccc", emoji: "🗡️" },
+  axe: { name: "🪓 Axe", type: "weapon", damage: 5, color: "#999", emoji: "🪓" },
+  shield: { name: "🛡️ Shield", type: "armor", defense: 2, color: "cyan", emoji: "🛡️" },
+  armor: { name: "🦺 Armor", type: "armor", defense: 4, color: "purple", emoji: "🦺" },
+  potion: { name: "🧪 Potion", type: "consumable", heal: 30, color: "lime", emoji: "🧪" },
+  ring: { name: "💍 Ring", type: "accessory", critRate: 0.05, color: "gold", emoji: "💍" },
+  amulet: { name: "📿 Amulet", type: "accessory", maxHp: 50, color: "turquoise", emoji: "📿" },
+  boots: { name: "👢 Boots", type: "armor", speed: 1, color: "brown", emoji: "👢" }
+};
+
+const itemKeys = Object.keys(itemDatabase);
+
+// ================= SPAWN ENEMY =================
+function spawnEnemy(forceBoss = false) {
+  let x, y;
+  let typeIndex;
+  
+  if (forceBoss) {
+    typeIndex = 4; // Boss
+    bossActive = true;
+    document.getElementById('bossWarning').style.display = 'block';
+    setTimeout(() => {
+      document.getElementById('bossWarning').style.display = 'none';
+    }, 3000);
+  } else {
+    // Random enemy type based on player level
+    if (player.level >= 5 && Math.random() < 0.1) {
+      typeIndex = 4; // Boss rare spawn
+      bossActive = true;
+    } else if (player.level >= 3) {
+      typeIndex = Math.floor(Math.random() * 4); // All except boss
+    } else {
+      typeIndex = Math.floor(Math.random() * 2); // Only goblin and orc
+    }
+  }
+  
+  const enemyType = enemyTypes[typeIndex];
+  
+  do {
+    x = Math.random() * mapWidth;
+    y = Math.random() * mapHeight;
+  } while (Math.hypot(x - 1500, y - 1500) < safeZoneRadius);
+
+  enemies.push({
+    x, y,
+    r: enemyType.size,
+    hp: enemyType.hp,
+    maxHp: enemyType.hp,
+    damage: enemyType.damage,
+    speed: enemyType.speed,
+    type: enemyType.name,
+    color: enemyType.color,
+    exp: enemyType.exp,
+    isBoss: enemyType.isBoss || false,
+    attackCooldown: 0,
+    specialCooldown: 0,
+    targetX: x,
+    targetY: y
+  });
+}
+
+// Initial spawn
+for (let i = 0; i < maxEnemies; i++) {
+  spawnEnemy();
+}
+
+// ================= UPDATE INVENTORY DISPLAY =================
+function updateInventoryDisplay() {
+  const grid = document.getElementById('inventoryGrid');
+  let html = '';
+  
+  for (let i = 0; i < 8; i++) {
+    const item = inventory[i];
+    const selectedClass = i === selectedInventorySlot ? 'inventory-slot selected' : 'inventory-slot';
+    
+    if (item) {
+      const itemData = itemDatabase[item];
+      // Count occurrences
+      const count = inventory.filter((_, index) => index >= i && inventory[index] === item).length;
+      
+      html += `<div class="${selectedClass}" onclick="useInventoryItem(${i})">
+        ${itemData.emoji}
+        ${count > 1 ? `<span class="item-count">${count}</span>` : ''}
+      </div>`;
+    } else {
+      html += `<div class="${selectedClass}" onclick="useInventoryItem(${i})">❓</div>`;
+    }
+  }
+  
+  grid.innerHTML = html;
+  if (mobileMode) updateMobileInventoryBar();
+}
+
+// ================= USE INVENTORY ITEM =================
+function useInventoryItem(index) {
+  if (index >= inventory.length) return;
+  
+  const itemType = inventory[index];
+  const item = itemDatabase[itemType];
+  
+  if (item.type === "consumable") {
+    // Use potion
+    player.hp += item.heal;
+    if (player.hp > player.maxHp) player.hp = player.maxHp;
+    inventory.splice(index, 1);
+    addDamageNumber(player.x, player.y - 30, `+${item.heal}`, "#44ff44");
+  } else if (item.type === "weapon") {
+    // Equip weapon
+    player.damage = player.baseDamage + item.damage;
+    inventory.splice(index, 1);
+  } else if (item.type === "armor") {
+    // Equip armor
+    if (item.defense) player.defense += item.defense;
+    if (item.speed) player.speed = player.baseSpeed + item.speed;
+    inventory.splice(index, 1);
+  } else if (item.type === "accessory") {
+    // Equip accessory
+    if (item.critRate) player.critRate += item.critRate;
+    if (item.maxHp) {
+      player.maxHp += item.maxHp;
+      player.hp += item.maxHp;
+    }
+    inventory.splice(index, 1);
+  }
+  
+  updateInventoryDisplay();
+}
+
+// ================= ADD DAMAGE NUMBER =================
+function addDamageNumber(x, y, amount, color, isCrit = false) {
+  damageNumbers.push({
+    x, y,
+    amount,
+    color,
+    isCrit,
+    life: 60
+  });
+}
+
+// ================= LEVEL UP =================
+function levelUp() {
+  player.level++;
+  player.exp -= player.expToNext;
+  player.expToNext = Math.floor(player.expToNext * 1.5);
+  
+  // Stat increases
+  player.maxHp += 20;
+  player.hp = player.maxHp;
+  player.baseDamage += 2;
+  player.damage = player.baseDamage + (player.damage - player.baseDamage);
+  player.defense += 1;
+  
+  // Show level up effect
+  showLevelUpEffect = true;
+  levelUpTimer = 120;
+  
+  addDamageNumber(player.x, player.y - 50, `LEVEL ${player.level}!`, "#ffd700");
+}
+
+// ================= UPDATE =================
+function update() {
+  gameTime++;
+  
+  // Cooldowns
+  if (player.attackCooldown > 0) player.attackCooldown--;
+  if (player.skillCooldown > 0) player.skillCooldown--;
+  if (player.invincibleTimer > 0) {
+    player.invincibleTimer--;
+    player.invincible = true;
+  } else {
+    player.invincible = false;
+  }
+  
+  if (levelUpTimer > 0) {
+    levelUpTimer--;
+    if (levelUpTimer <= 0) showLevelUpEffect = false;
+  }
+  
+  if (specialSkillCooldown > 0) specialSkillCooldown--;
+  
+  // Boss spawn timer
+  if (!bossActive && player.level >= 3) {
+    bossSpawnTimer++;
+    if (bossSpawnTimer > 1800) { // 30 seconds
+      spawnEnemy(true);
+      bossSpawnTimer = 0;
+    }
+  }
+
+  // Movement
+  let currentSpeed = keys["shift"] ? player.speed * 1.5 : player.speed;
+  
+  // PC Movement
+  if (!mobileMode) {
+    if (keys["w"]) player.y -= currentSpeed;
+    if (keys["s"]) player.y += currentSpeed;
+    if (keys["a"]) player.x -= currentSpeed;
+    if (keys["d"]) player.x += currentSpeed;
+  }
+  
+  // Mobile joystick movement
+  if (mobileMode && joystickActive) {
+    player.x += joystickVector.x * currentSpeed * 2;
+    player.y += joystickVector.y * currentSpeed * 2;
+  }
+  
+  // Keep player in bounds
+  player.x = Math.max(20, Math.min(mapWidth - 20, player.x));
+  player.y = Math.max(20, Math.min(mapHeight - 20, player.y));
+
+  // Special skill (SPACE)
+  if (keys[" "] && specialSkillCooldown <= 0 && player.level >= 2) {
+    specialSkillCooldown = 300; // 5 seconds
+    
+    // AoE damage
+    enemies.forEach(enemy => {
+      const dist = Math.hypot(player.x - enemy.x, player.y - enemy.y);
+      if (dist < 150) {
+        const damage = player.damage * 2;
+        enemy.hp -= damage;
+        addDamageNumber(enemy.x, enemy.y, Math.round(damage), "#ffaa00", true);
+      }
+    });
+    
+    addDamageNumber(player.x, player.y - 50, "SPECIAL!", "#ffaa00");
+  }
+
+  // Update enemies
+  enemies.forEach(enemy => {
+    const dx = player.x - enemy.x;
+    const dy = player.y - enemy.y;
+    const dist = Math.hypot(dx, dy);
+
+    if (enemy.attackCooldown > 0) enemy.attackCooldown--;
+
+    // Enemy AI
+    if (dist < 300) {
+      // Chase player
+      const angle = Math.atan2(dy, dx);
+      
+      // Random movement for non-boss enemies
+      if (!enemy.isBoss && Math.random() < 0.01) {
+        enemy.targetX = player.x + (Math.random() - 0.5) * 100;
+        enemy.targetY = player.y + (Math.random() - 0.5) * 100;
+      }
+      
+      enemy.x += Math.cos(angle) * enemy.speed;
+      enemy.y += Math.sin(angle) * enemy.speed;
+    }
+
+    // Enemy attack
+    if (dist < 30 && enemy.attackCooldown <= 0) {
+      if (!player.invincible) {
+        let finalDamage = enemy.damage - player.defense;
+        if (finalDamage < 1) finalDamage = 1;
+        player.hp -= finalDamage;
+        player.invincibleTimer = 20; // Brief invincibility after hit
+        addDamageNumber(player.x, player.y, finalDamage, "#ff4444");
+        
+        if (player.hp <= 0) {
+          gameOver();
+        }
+      }
+      enemy.attackCooldown = enemy.isBoss ? 30 : 60;
+    }
+
+    // Player attack (E key)
+    if (keys["e"] && dist < 45 && player.attackCooldown <= 0) {
+      // Critical hit chance
+      const isCrit = Math.random() < player.critRate;
+      let damage = isCrit ? player.damage * player.critDamage : player.damage;
+      
+      enemy.hp -= damage;
+      player.attackCooldown = enemy.isBoss ? 20 : 15;
+      
+      // Damage number
+      addDamageNumber(enemy.x, enemy.y, Math.round(damage), isCrit ? "#ffaa00" : "#ffffff", isCrit);
+      
+      // Knockback
+      if (enemy.isBoss) {
+        // Less knockback for boss
+        enemy.x -= dx * 0.1;
+        enemy.y -= dy * 0.1;
+      } else {
+        enemy.x -= dx * 0.5;
+        enemy.y -= dy * 0.5;
+      }
+    }
+  });
+
+  // Enemy death and drops
+  enemies = enemies.filter(enemy => {
+    if (enemy.hp <= 0) {
+      killCount++;
+      player.exp += enemy.exp;
+      
+      // Check level up
+      while (player.exp >= player.expToNext) {
+        levelUp();
+      }
+      
+      // Drop items
+      if (Math.random() < (enemy.isBoss ? 1.0 : 0.7)) {
+        const dropCount = enemy.isBoss ? 
+          Math.floor(Math.random() * 5) + 3 : 
+          Math.floor(Math.random() * 2) + 1;
+
+        for (let i = 0; i < dropCount; i++) {
+          let randomItem;
+          if (enemy.isBoss) {
+            // Boss drops better items
+            const bossDrops = ['sword', 'axe', 'armor', 'ring', 'amulet', 'potion'];
+            randomItem = bossDrops[Math.floor(Math.random() * bossDrops.length)];
+          } else {
+            randomItem = itemKeys[Math.floor(Math.random() * itemKeys.length)];
+          }
+
+          drops.push({
+            x: enemy.x + (Math.random() - 0.5) * 30,
+            y: enemy.y + (Math.random() - 0.5) * 30,
+            type: randomItem,
+            value: itemDatabase[randomItem]
+          });
+        }
+      }
+      
+      if (enemy.isBoss) {
+        bossActive = false;
+        addDamageNumber(enemy.x, enemy.y, "BOSS DEFEATED!", "#ffd700");
+      }
+      
+      return false;
+    }
+    return true;
+  });
+
+  // Respawn enemies
+  while (enemies.length < maxEnemies) {
+    spawnEnemy();
+  }
+
+  // Pick up items
+  drops = drops.filter(drop => {
+    const dist = Math.hypot(player.x - drop.x, player.y - drop.y);
+    if (dist < 35) {
+      if (inventory.length < 8) {
+        inventory.push(drop.type);
+        addDamageNumber(player.x, player.y, `+${itemDatabase[drop.type].name}`, "#ffd700");
+      } else {
+        // Inventory full, drop bounces away
+        drop.x += (Math.random() - 0.5) * 50;
+        drop.y += (Math.random() - 0.5) * 50;
+        return true;
+      }
+      return false;
+    }
+    return true;
+  });
+
+  // Quick heal (F key)
+  if (keys["f"]) {
+    const potionIndex = inventory.findIndex(i => itemDatabase[i].type === "consumable");
+    if (potionIndex !== -1) {
+      useInventoryItem(potionIndex);
+      keys["f"] = false;
+    }
+  }
+
+  // Use selected item (Q key)
+  if (keys["q"] && inventory[selectedInventorySlot]) {
+    useInventoryItem(selectedInventorySlot);
+    keys["q"] = false;
+  }
+
+  // Update damage numbers
+  damageNumbers = damageNumbers.filter(d => {
+    d.life--;
+    return d.life > 0;
+  });
+
+  // Update UI
+  updateUI();
+  
+  // Update minimap
+  updateMinimap();
+}
+
+// ================= UPDATE UI =================
+function updateUI() {
+  document.getElementById('hpDisplay').textContent = `${Math.round(player.hp)}/${player.maxHp}`;
+  document.getElementById('hpBar').style.width = `${(player.hp / player.maxHp) * 100}%`;
+  document.getElementById('expDisplay').textContent = `${player.exp}/${player.expToNext}`;
+  document.getElementById('expBar').style.width = `${(player.exp / player.expToNext) * 100}%`;
+  document.getElementById('levelDisplay').textContent = player.level;
+  document.getElementById('damageDisplay').textContent = player.damage;
+  document.getElementById('defenseDisplay').textContent = player.defense;
+  document.getElementById('speedDisplay').textContent = player.speed;
+  document.getElementById('critDisplay').textContent = `${Math.round(player.critRate * 100)}%`;
+  document.getElementById('killDisplay').textContent = killCount;
+}
+
+// ================= UPDATE MINIMAP =================
+function updateMinimap() {
+  minimapCtx.clearRect(0, 0, 200, 200);
+  
+  // Draw map background
+  minimapCtx.fillStyle = "#2a3a4a";
+  minimapCtx.fillRect(0, 0, 200, 200);
+  
+  // Draw safe zone
+  minimapCtx.strokeStyle = "#4aff4a";
+  minimapCtx.lineWidth = 2;
+  minimapCtx.beginPath();
+  minimapCtx.arc(100, 100, safeZoneRadius / 15, 0, Math.PI * 2);
+  minimapCtx.stroke();
+  
+  // Draw enemies
+  enemies.forEach(enemy => {
+    const x = (enemy.x / mapWidth) * 200;
+    const y = (enemy.y / mapHeight) * 200;
+    
+    minimapCtx.fillStyle = enemy.isBoss ? "#ff00ff" : "#ff0000";
+    minimapCtx.beginPath();
+    minimapCtx.arc(x, y, enemy.isBoss ? 5 : 2, 0, Math.PI * 2);
+    minimapCtx.fill();
+  });
+  
+  // Draw player
+  const playerX = (player.x / mapWidth) * 200;
+  const playerY = (player.y / mapHeight) * 200;
+  
+  minimapCtx.fillStyle = "#00aaff";
+  minimapCtx.beginPath();
+  minimapCtx.arc(playerX, playerY, 4, 0, Math.PI * 2);
+  minimapCtx.fill();
+  minimapCtx.strokeStyle = "#ffffff";
+  minimapCtx.lineWidth = 2;
+  minimapCtx.stroke();
+  
+  // Draw drops
+  drops.forEach(drop => {
+    const x = (drop.x / mapWidth) * 200;
+    const y = (drop.y / mapHeight) * 200;
+    
+    minimapCtx.fillStyle = "#ffff00";
+    minimapCtx.beginPath();
+    minimapCtx.arc(x, y, 1, 0, Math.PI * 2);
+    minimapCtx.fill();
+  });
+}
+
+// ================= GAME OVER =================
+function gameOver() {
+  alert(`💀 GAME OVER 💀\nLevel: ${player.level}\nKills: ${killCount}`);
+  location.reload();
+}
+
+// ================= DRAW ITEM =================
+function drawItem(drop) {
+  const x = drop.x;
+  const y = drop.y;
+  const type = drop.type;
+  const item = itemDatabase[type];
+  
+  // Glow effect for rare items
+  if (type === 'ring' || type === 'amulet') {
+    ctx.shadowColor = "gold";
+    ctx.shadowBlur = 15;
+  }
+  
+  ctx.fillStyle = item.color;
+  
+  switch(type) {
+    case "sword":
+      ctx.fillRect(x-2, y-10, 4, 20);
+      ctx.fillStyle = "#8B4513";
+      ctx.fillRect(x-5, y-5, 10, 5);
+      break;
+      
+    case "axe":
+      ctx.fillRect(x-2, y-10, 4, 20);
+      ctx.fillStyle = "#666";
+      ctx.fillRect(x-8, y-12, 16, 8);
+      break;
+      
+    case "shield":
+      ctx.beginPath();
+      ctx.arc(x, y, 8, 0, Math.PI*2);
+      ctx.fill();
+      ctx.fillStyle = "#fff";
+      ctx.fillRect(x-3, y-4, 6, 8);
+      break;
+      
+    case "armor":
+      ctx.fillRect(x-8, y-6, 16, 12);
+      ctx.fillStyle = "#fff";
+      ctx.fillRect(x-3, y-8, 6, 4);
+      break;
+      
+    case "potion":
+      ctx.beginPath();
+      ctx.arc(x, y, 8, 0, Math.PI*2);
+      ctx.fill();
+      ctx.fillStyle = "white";
+      ctx.fillRect(x-3, y-10, 6, 6);
+      break;
+      
+    case "ring":
+      ctx.beginPath();
+      ctx.arc(x, y, 8, 0, Math.PI*2);
+      ctx.strokeStyle = "gold";
+      ctx.lineWidth = 3;
+      ctx.stroke();
+      ctx.fillStyle = "gold";
+      ctx.beginPath();
+      ctx.arc(x, y, 3, 0, Math.PI*2);
+      ctx.fill();
+      break;
+      
+    case "amulet":
+      ctx.beginPath();
+      ctx.arc(x, y-2, 8, 0, Math.PI);
+      ctx.fill();
+      ctx.fillRect(x-3, y-2, 6, 8);
+      break;
+      
+    case "boots":
+      ctx.fillRect(x-8, y-4, 16, 8);
+      ctx.fillStyle = "#000";
+      ctx.fillRect(x-5, y, 3, 4);
+      ctx.fillRect(x+2, y, 3, 4);
+      break;
+  }
+  
+  ctx.shadowBlur = 0;
+}
+
+// ================= DRAW =================
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Camera follow player
+  let camX = player.x - canvas.width / 2;
+  let camY = player.y - canvas.height / 2;
+
+  camX = Math.max(0, Math.min(mapWidth - canvas.width, camX));
+  camY = Math.max(0, Math.min(mapHeight - canvas.height, camY));
+
+  ctx.save();
+  ctx.translate(-camX, -camY);
+
+  // Draw ground with grid
+  ctx.fillStyle = "#1a2a3a";
+  ctx.fillRect(0, 0, mapWidth, mapHeight);
+  
+  // Grid
+  ctx.strokeStyle = "#2a3a4a";
+  ctx.lineWidth = 1;
+  for (let i = 0; i < mapWidth; i += 50) {
+    ctx.beginPath();
+    ctx.moveTo(i, 0);
+    ctx.lineTo(i, mapHeight);
+    ctx.strokeStyle = "#2a3a4a";
+    ctx.stroke();
+  }
+  for (let i = 0; i < mapHeight; i += 50) {
+    ctx.beginPath();
+    ctx.moveTo(0, i);
+    ctx.lineTo(mapWidth, i);
+    ctx.stroke();
+  }
+
+  // Safe zone
+  ctx.strokeStyle = "#4aff4a";
+  ctx.lineWidth = 3;
+  ctx.setLineDash([10, 10]);
+  ctx.beginPath();
+  ctx.arc(1500, 1500, safeZoneRadius, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Draw drops
+  drops.forEach(drop => {
+    drawItem(drop);
+  });
+
+  // Draw enemies with health bars
+  enemies.forEach(enemy => {
+    // Enemy shadow
+    ctx.shadowColor = "rgba(0,0,0,0.5)";
+    ctx.shadowBlur = 10;
+    
+    // Enemy body
+    ctx.fillStyle = enemy.color;
+    ctx.beginPath();
+    ctx.arc(enemy.x, enemy.y, enemy.r, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Enemy eyes
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = "white";
+    ctx.beginPath();
+    ctx.arc(enemy.x - 5, enemy.y - 5, 3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(enemy.x + 5, enemy.y - 5, 3, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.fillStyle = "black";
+    ctx.beginPath();
+    ctx.arc(enemy.x - 5, enemy.y - 5, 1.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(enemy.x + 5, enemy.y - 5, 1.5, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Boss crown
+    if (enemy.isBoss) {
+      ctx.fillStyle = "gold";
+      ctx.beginPath();
+      ctx.arc(enemy.x, enemy.y - enemy.r - 5, 8, 0, Math.PI * 2);
+      ctx.fill();
+      for (let i = -1; i <= 1; i++) {
+        ctx.fillRect(enemy.x + i * 5 - 2, enemy.y - enemy.r - 15, 4, 8);
+      }
+    }
+    
+    // Health bar
+    const healthPercent = enemy.hp / enemy.maxHp;
+    ctx.fillStyle = "#ff4444";
+    ctx.fillRect(enemy.x - 20, enemy.y - enemy.r - 15, 40, 5);
+    ctx.fillStyle = "#44ff44";
+    ctx.fillRect(enemy.x - 20, enemy.y - enemy.r - 15, 40 * healthPercent, 5);
+    
+    // Enemy name
+    ctx.fillStyle = "white";
+    ctx.font = "12px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText(enemy.type, enemy.x, enemy.y - enemy.r - 25);
+  });
+
+  // Draw player with trail effect
+  ctx.shadowBlur = 20;
+  ctx.shadowColor = "#00aaff";
+  
+  // Player body
+  ctx.fillStyle = "#00aaff";
+  ctx.fillRect(player.x, player.y, player.w, player.h);
+  
+  // Player eyes
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = "white";
+  ctx.fillRect(player.x + 5, player.y + 10, 5, 5);
+  ctx.fillRect(player.x + 20, player.y + 10, 5, 5);
+  ctx.fillStyle = "black";
+  ctx.fillRect(player.x + 6, player.y + 11, 3, 3);
+  ctx.fillRect(player.x + 21, player.y + 11, 3, 3);
+  
+  // Player weapon
+  if (player.attackCooldown > 25) {
+    ctx.strokeStyle = "yellow";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(player.x + 15, player.y + 20);
+    ctx.lineTo(player.x + 40, player.y + 20);
+    ctx.stroke();
+  }
+
+  ctx.restore();
+
+  // Draw damage numbers (screen space)
+  damageNumbers.forEach(d => {
+    const screenX = d.x - camX;
+    const screenY = d.y - camY - d.life / 2;
+    
+    ctx.font = d.isCrit ? "bold 24px Arial" : "20px Arial";
+    ctx.fillStyle = d.color;
+    ctx.shadowColor = "black";
+    ctx.shadowBlur = 4;
+    ctx.fillText(d.amount, screenX, screenY);
+  });
+  
+  ctx.shadowBlur = 0;
+
+  // Draw level up effect
+  if (showLevelUpEffect) {
+    const effect = document.createElement('div');
+    effect.className = 'level-up-effect';
+    effect.textContent = 'LEVEL UP!';
+    document.body.appendChild(effect);
+    setTimeout(() => effect.remove(), 2000);
+    showLevelUpEffect = false;
+  }
+}
+
+// ================= GAME LOOP =================
+function gameLoop() {
+  update();
+  draw();
+  requestAnimationFrame(gameLoop);
+}
+
+// Initialize
+updateInventoryDisplay();
+if (mobileMode) updateMobileInventoryBar();
+gameLoop();
+
+// Window resize handler
+window.addEventListener('resize', () => {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+});
+
+// Export function for onclick
+window.useInventoryItem = useInventoryItem;
+window.useMobileInventoryItem = useMobileInventoryItem;
+</script>
+</body>
+</html>
