@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>⚡ LEGEND COMBAT - CÀNG XA CÀNG KHÓ ⚡</title>
+<title>⚡ LEGEND COMBAT - ACCOUNT SYSTEM ⚡</title>
 <style>
   * {
     margin: 0;
@@ -22,6 +22,104 @@
     display: block; 
     background: #1a2a3a;
     filter: drop-shadow(0 0 10px rgba(0,0,0,0.5));
+  }
+  
+  /* ===== LOGIN SCREEN ===== */
+  #loginOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.95);
+    backdrop-filter: blur(10px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+  }
+  
+  .login-container {
+    background: rgba(20,20,40,0.9);
+    border: 3px solid #ffd700;
+    border-radius: 20px;
+    padding: 40px;
+    width: 400px;
+    text-align: center;
+    box-shadow: 0 0 50px rgba(255,215,0,0.5);
+    animation: loginGlow 2s infinite;
+  }
+  
+  @keyframes loginGlow {
+    0% { box-shadow: 0 0 30px rgba(255,215,0,0.5); }
+    50% { box-shadow: 0 0 60px rgba(255,215,0,0.8); }
+    100% { box-shadow: 0 0 30px rgba(255,215,0,0.5); }
+  }
+  
+  .login-container h1 {
+    color: #ffd700;
+    font-size: 48px;
+    margin-bottom: 30px;
+    text-shadow: 0 0 20px #ffd700;
+  }
+  
+  .login-container h2 {
+    color: #4a90e2;
+    margin-bottom: 30px;
+  }
+  
+  .login-input {
+    width: 100%;
+    padding: 15px;
+    margin: 10px 0;
+    background: rgba(255,255,255,0.1);
+    border: 2px solid #4a90e2;
+    border-radius: 10px;
+    color: white;
+    font-size: 16px;
+    outline: none;
+    transition: all 0.3s;
+  }
+  
+  .login-input:focus {
+    border-color: #ffd700;
+    box-shadow: 0 0 20px #ffd700;
+  }
+  
+  .login-btn {
+    width: 100%;
+    padding: 15px;
+    margin: 10px 0;
+    background: linear-gradient(135deg, #4a90e2, #ffd700);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  
+  .login-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 30px #ffd700;
+  }
+  
+  .login-switch {
+    color: #aaa;
+    margin-top: 20px;
+    cursor: pointer;
+    transition: color 0.3s;
+  }
+  
+  .login-switch:hover {
+    color: #ffd700;
+  }
+  
+  .error-message {
+    color: #ff4444;
+    margin-top: 10px;
+    min-height: 20px;
   }
   
   /* ===== UI BUTTONS ===== */
@@ -66,6 +164,18 @@
     color: white;
   }
   
+  .ui-button.logout {
+    border-color: #ff4444;
+    color: #ff4444;
+    top: 20px;
+    right: 80px;
+  }
+  
+  .ui-button.logout:hover {
+    background: #ff4444;
+    color: white;
+  }
+  
   #toggleGuide {
     top: 20px;
     left: 20px;
@@ -82,12 +192,61 @@
     font-size: 20px;
   }
   
-  #spawnBossBtn {
+  #saveGame {
     top: 20px;
-    right: 20px;
-    background: #ff00ff;
-    border-color: #ff00ff;
+    right: 140px;
+    border-color: #44ff44;
+    color: #44ff44;
+  }
+  
+  #saveGame:hover {
+    background: #44ff44;
+    color: black;
+  }
+  
+  #logoutBtn {
+    top: 20px;
+    right: 80px;
+    border-color: #ff4444;
+    color: #ff4444;
+  }
+  
+  #logoutBtn:hover {
+    background: #ff4444;
     color: white;
+  }
+  
+  /* ===== COOLDOWN DISPLAY ===== */
+  #cooldownBar {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 300px;
+    height: 30px;
+    background: rgba(0,0,0,0.7);
+    border: 2px solid #ffd700;
+    border-radius: 15px;
+    overflow: hidden;
+    backdrop-filter: blur(5px);
+    z-index: 100;
+  }
+  
+  .cooldown-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #ffaa00, #ffd700);
+    width: 100%;
+    transition: width 0.1s linear;
+  }
+  
+  .cooldown-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-weight: bold;
+    text-shadow: 2px 2px 2px black;
   }
   
   /* ===== GUIDE PANEL ===== */
@@ -95,7 +254,7 @@
     position: absolute;
     top: 80px;
     left: 20px;
-    width: 320px;
+    width: 350px;
     max-height: 80vh;
     overflow-y: auto;
     background: rgba(10,10,20,0.95);
@@ -153,7 +312,7 @@
     border-radius: 8px;
     color: #ffd700;
     font-weight: bold;
-    min-width: 70px;
+    min-width: 80px;
     text-align: center;
     margin-right: 12px;
     font-size: 14px;
@@ -362,7 +521,7 @@
     border-radius: 15px;
     backdrop-filter: blur(5px);
     border: 2px solid #ffd700;
-    min-width: 280px;
+    min-width: 300px;
     z-index: 100;
     transition: transform 0.3s, opacity 0.3s;
   }
@@ -424,6 +583,11 @@
     color: #ff4444;
     font-weight: bold;
     animation: pulse 1s infinite;
+  }
+  
+  .crit-value {
+    color: #ffaa00;
+    font-weight: bold;
   }
   
   #inventory {
@@ -595,10 +759,32 @@
       height: 100px;
       bottom: 250px;
     }
+    
+    #cooldownBar {
+      width: 200px;
+      bottom: 200px;
+    }
   }
 </style>
 </head>
 <body>
+
+<!-- Login Screen -->
+<div id="loginOverlay">
+  <div class="login-container">
+    <h1>⚔️ LEGEND COMBAT ⚔️</h1>
+    <h2 id="loginTitle">ĐĂNG NHẬP</h2>
+    
+    <input type="text" id="username" class="login-input" placeholder="Tên đăng nhập">
+    <input type="password" id="password" class="login-input" placeholder="Mật khẩu">
+    
+    <button class="login-btn" id="loginBtn">ĐĂNG NHẬP</button>
+    <button class="login-btn" id="registerBtn" style="background: linear-gradient(135deg, #ffd700, #ffaa00);">ĐĂNG KÝ</button>
+    
+    <div class="login-switch" id="switchToRegister">Chưa có tài khoản? Đăng ký ngay</div>
+    <div class="error-message" id="loginError"></div>
+  </div>
+</div>
 
 <canvas id="game"></canvas>
 
@@ -606,7 +792,14 @@
 <div class="ui-button" id="toggleGuide" title="Hướng dẫn">📖</div>
 <div class="ui-button" id="toggleStats" title="Ẩn/hiện UI">📊</div>
 <div class="ui-button teleport" id="teleportHome" title="Về nhà (tốn 1 item)">🏠</div>
-<div class="ui-button" id="spawnBossBtn" title="Spawn boss test">👾</div>
+<div class="ui-button" id="saveGame" title="Lưu game">💾</div>
+<div class="ui-button logout" id="logoutBtn" title="Đăng xuất">🚪</div>
+
+<!-- Cooldown Bar -->
+<div id="cooldownBar">
+  <div class="cooldown-fill" id="cooldownFill"></div>
+  <div class="cooldown-text" id="cooldownText">SPECIAL READY</div>
+</div>
 
 <!-- Guide Panel -->
 <div id="guidePanel">
@@ -615,52 +808,56 @@
   <div class="guide-section">
     <h3>⚠️ CƠ CHẾ CÀNG XA CÀNG KHÓ</h3>
     <div class="guide-item">
-      <span class="guide-key">0-1000m</span>
-      <span class="guide-desc">Cấp 1 - Dễ</span>
+      <span class="guide-key">0-2000m</span>
+      <span class="guide-desc">Cấp 1-2 - Dễ</span>
     </div>
     <div class="guide-item">
-      <span class="guide-key">1000-2000m</span>
-      <span class="guide-desc">Cấp 2 - Trung bình</span>
+      <span class="guide-key">2000-4000m</span>
+      <span class="guide-desc">Cấp 3-4 - Trung bình</span>
     </div>
     <div class="guide-item">
-      <span class="guide-key">2000-3000m</span>
-      <span class="guide-desc">Cấp 3 - Khá</span>
+      <span class="guide-key">4000-6000m</span>
+      <span class="guide-desc">Cấp 5-6 - Khá</span>
     </div>
     <div class="guide-item">
-      <span class="guide-key">3000-4000m</span>
-      <span class="guide-desc">Cấp 4 - Khó</span>
+      <span class="guide-key">6000-8000m</span>
+      <span class="guide-desc">Cấp 7-8 - Khó</span>
     </div>
     <div class="guide-item">
-      <span class="guide-key">4000-5000m</span>
-      <span class="guide-desc">Cấp 5 - Rất khó</span>
+      <span class="guide-key">8000-10000m</span>
+      <span class="guide-desc">Cấp 9-10 - Rất khó</span>
     </div>
     <div class="guide-item">
-      <span class="guide-key">5000m+</span>
-      <span class="guide-desc warning-text">Cấp 6-10 - BOSS ZONE</span>
+      <span class="guide-key">10000m+</span>
+      <span class="guide-desc warning-text">CẤP 10+ - BOSS ZONE</span>
     </div>
   </div>
   
   <div class="guide-section">
-    <h3>👾 QUÁI VẬT THEO CẤP</h3>
+    <h3>💥 SPECIAL SKILL</h3>
     <div class="guide-item">
-      <span class="guide-key" style="background:#ff6b6b">Goblin</span>
-      <span class="guide-desc">Cấp 1+</span>
+      <span class="guide-key">Sát thương</span>
+      <span class="guide-desc" id="guideSpecialDamage">200% damage</span>
     </div>
     <div class="guide-item">
-      <span class="guide-key" style="background:#c44">Orc</span>
-      <span class="guide-desc">Cấp 1+</span>
+      <span class="guide-key">Cooldown</span>
+      <span class="guide-desc" id="guideSpecialCooldown">5 giây</span>
     </div>
     <div class="guide-item">
-      <span class="guide-key" style="background:#aaa">Skeleton</span>
-      <span class="guide-desc">Cấp 3+</span>
+      <span class="guide-key">Phạm vi</span>
+      <span class="guide-desc">150px</span>
+    </div>
+  </div>
+  
+  <div class="guide-section">
+    <h3>🎯 CRITICAL</h3>
+    <div class="guide-item">
+      <span class="guide-key">Tỉ lệ</span>
+      <span class="guide-desc" id="guideCritRate">5%</span>
     </div>
     <div class="guide-item">
-      <span class="guide-key" style="background:#96f">Dark Mage</span>
-      <span class="guide-desc">Cấp 5+</span>
-    </div>
-    <div class="guide-item">
-      <span class="guide-key" style="background:#f0f">BOSS</span>
-      <span class="guide-desc">Cấp 7+ (hiếm) / Cấp 9+ (thường)</span>
+      <span class="guide-key">Sát thương</span>
+      <span class="guide-desc" id="guideCritDamage">150%</span>
     </div>
   </div>
   
@@ -670,7 +867,7 @@
     <div class="guide-item"><span class="guide-key">E</span><span class="guide-desc">Tấn công</span></div>
     <div class="guide-item"><span class="guide-key">Q</span><span class="guide-desc">Dùng item</span></div>
     <div class="guide-item"><span class="guide-key">F</span><span class="guide-desc">Hồi máu</span></div>
-    <div class="guide-item"><span class="guide-key">SPACE</span><span class="guide-desc">Kỹ năng</span></div>
+    <div class="guide-item"><span class="guide-key">SPACE</span><span class="guide-desc">Special skill</span></div>
     <div class="guide-item"><span class="guide-key">T</span><span class="guide-desc">Về nhà</span></div>
     <div class="guide-item"><span class="guide-key">1-4</span><span class="guide-desc">Chọn ô</span></div>
   </div>
@@ -724,6 +921,18 @@
     <span class="stat-value" id="defenseDisplay">0</span>
   </div>
   <div class="stat-row">
+    <span class="stat-label">🎯 Crit Rate</span>
+    <span class="crit-value" id="critDisplay">5%</span>
+  </div>
+  <div class="stat-row">
+    <span class="stat-label">💥 Crit Dmg</span>
+    <span class="crit-value" id="critDamageDisplay">150%</span>
+  </div>
+  <div class="stat-row">
+    <span class="stat-label">✨ Special</span>
+    <span class="stat-value" id="specialDisplay">200%</span>
+  </div>
+  <div class="stat-row">
     <span class="stat-label">📏 Khoảng cách</span>
     <span class="stat-value" id="distanceDisplay">0m</span>
   </div>
@@ -734,6 +943,10 @@
   <div class="stat-row">
     <span class="stat-label">👾 Boss sau</span>
     <span class="stat-value" id="bossCounterDisplay">10 kill</span>
+  </div>
+  <div class="stat-row">
+    <span class="stat-label">👤 User</span>
+    <span class="stat-value" id="userDisplay">Guest</span>
   </div>
 </div>
 
@@ -750,6 +963,166 @@
 <div id="bossWarning">👾 BOSS XUẤT HIỆN! 👾</div>
 
 <script>
+// ================= ACCOUNT SYSTEM =================
+let currentUser = null;
+let accounts = JSON.parse(localStorage.getItem('legendCombatAccounts')) || {};
+
+// Login elements
+const loginOverlay = document.getElementById('loginOverlay');
+const loginTitle = document.getElementById('loginTitle');
+const usernameInput = document.getElementById('username');
+const passwordInput = document.getElementById('password');
+const loginBtn = document.getElementById('loginBtn');
+const registerBtn = document.getElementById('registerBtn');
+const switchBtn = document.getElementById('switchToRegister');
+const loginError = document.getElementById('loginError');
+
+let isLoginMode = true;
+
+// Switch between login/register
+switchBtn.onclick = () => {
+  isLoginMode = !isLoginMode;
+  loginTitle.textContent = isLoginMode ? 'ĐĂNG NHẬP' : 'ĐĂNG KÝ';
+  loginBtn.textContent = isLoginMode ? 'ĐĂNG NHẬP' : 'ĐĂNG KÝ';
+  switchBtn.textContent = isLoginMode ? 'Chưa có tài khoản? Đăng ký ngay' : 'Đã có tài khoản? Đăng nhập';
+};
+
+// Login function
+loginBtn.onclick = () => {
+  const username = usernameInput.value.trim();
+  const password = passwordInput.value.trim();
+  
+  if (!username || !password) {
+    loginError.textContent = 'Vui lòng nhập đầy đủ thông tin';
+    return;
+  }
+  
+  if (isLoginMode) {
+    // Login
+    if (accounts[username] && accounts[username].password === password) {
+      currentUser = username;
+      loadGame(accounts[username].data);
+      loginOverlay.style.display = 'none';
+      document.getElementById('userDisplay').textContent = username;
+    } else {
+      loginError.textContent = 'Sai tên đăng nhập hoặc mật khẩu';
+    }
+  } else {
+    // Register
+    if (accounts[username]) {
+      loginError.textContent = 'Tên đăng nhập đã tồn tại';
+      return;
+    }
+    
+    accounts[username] = {
+      password: password,
+      data: getDefaultSaveData()
+    };
+    
+    localStorage.setItem('legendCombatAccounts', JSON.stringify(accounts));
+    loginError.textContent = 'Đăng ký thành công! Vui lòng đăng nhập';
+    isLoginMode = true;
+    loginTitle.textContent = 'ĐĂNG NHẬP';
+    loginBtn.textContent = 'ĐĂNG NHẬP';
+    switchBtn.textContent = 'Chưa có tài khoản? Đăng ký ngay';
+  }
+};
+
+// Logout
+document.getElementById('logoutBtn').onclick = () => {
+  if (currentUser && confirm('Bạn có chắc muốn đăng xuất?')) {
+    saveGame();
+    currentUser = null;
+    loginOverlay.style.display = 'flex';
+    usernameInput.value = '';
+    passwordInput.value = '';
+  }
+};
+
+// Save game
+document.getElementById('saveGame').onclick = () => {
+  if (currentUser) {
+    saveGame();
+    alert('💾 Đã lưu game!');
+  } else {
+    alert('Bạn cần đăng nhập để lưu game');
+  }
+};
+
+function getDefaultSaveData() {
+  return {
+    player: {
+      level: 1,
+      exp: 0,
+      expToNext: 100,
+      maxHp: 100,
+      baseDamage: 4,
+      damage: 4,
+      defense: 0,
+      critRate: 0.05,
+      critDamage: 1.5,
+      speed: 3,
+      baseSpeed: 3
+    },
+    inventory: [],
+    killCount: 0,
+    position: { x: 10000, y: 10000 }
+  };
+}
+
+function saveGame() {
+  if (!currentUser) return;
+  
+  const saveData = {
+    player: {
+      level: player.level,
+      exp: player.exp,
+      expToNext: player.expToNext,
+      maxHp: player.maxHp,
+      baseDamage: player.baseDamage,
+      damage: player.damage,
+      defense: player.defense,
+      critRate: player.critRate,
+      critDamage: player.critDamage,
+      speed: player.speed,
+      baseSpeed: player.baseSpeed
+    },
+    inventory: [...inventory],
+    killCount: killCount,
+    position: { x: player.x, y: player.y }
+  };
+  
+  accounts[currentUser].data = saveData;
+  localStorage.setItem('legendCombatAccounts', JSON.stringify(accounts));
+}
+
+function loadGame(saveData) {
+  if (!saveData) return;
+  
+  player.level = saveData.player.level;
+  player.exp = saveData.player.exp;
+  player.expToNext = saveData.player.expToNext;
+  player.maxHp = saveData.player.maxHp;
+  player.hp = saveData.player.maxHp;
+  player.baseDamage = saveData.player.baseDamage;
+  player.damage = saveData.player.damage;
+  player.defense = saveData.player.defense;
+  player.critRate = saveData.player.critRate;
+  player.critDamage = saveData.player.critDamage;
+  player.speed = saveData.player.speed;
+  player.baseSpeed = saveData.player.baseSpeed;
+  
+  inventory = saveData.inventory || [];
+  killCount = saveData.killCount || 0;
+  
+  if (saveData.position) {
+    player.x = saveData.position.x;
+    player.y = saveData.position.y;
+  }
+  
+  updateInventoryDisplay();
+}
+
 // ================= INIT =================
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
@@ -763,11 +1136,11 @@ canvas.height = window.innerHeight;
 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
 
 // ================= CONSTANTS =================
-const mapWidth = 6000;
-const mapHeight = 6000;
-const maxEnemies = 25;
-const safeZoneRadius = 400;
-const spawnPoint = { x: 3000, y: 3000 };
+const mapWidth = 20000; // Rộng 20km để đủ lv 10
+const mapHeight = 20000;
+const maxEnemies = 30;
+const safeZoneRadius = 500;
+const spawnPoint = { x: 10000, y: 10000 };
 
 // ================= GAME STATE =================
 let player = {
@@ -788,7 +1161,9 @@ let player = {
   exp: 0,
   expToNext: 100,
   attackCooldown: 0,
-  invincibleTimer: 0
+  invincibleTimer: 0,
+  specialCooldown: 0,
+  specialMaxCooldown: 300 // 5 giây (60fps * 5)
 };
 
 let enemies = [];
@@ -838,7 +1213,7 @@ const itemKeys = Object.keys(itemDatabase);
 // Tính cấp độ nguy hiểm
 function calculateDangerLevel() {
   distanceFromSpawn = Math.hypot(player.x - spawnPoint.x, player.y - spawnPoint.y);
-  dangerLevel = 1 + Math.floor(distanceFromSpawn / 1000);
+  dangerLevel = 1 + Math.floor(distanceFromSpawn / 2000); // 2000m mỗi cấp để có 10 cấp với map 20km
   return Math.min(dangerLevel, 10);
 }
 
@@ -865,7 +1240,6 @@ function spawnEnemy(forceBoss = false) {
     if (currentDanger >= 9 && rand < 0.4) {
       typeIndex = 4;
       bossActive = true;
-      console.log(`👾 BOSS HIẾM CẤP ${currentDanger}`);
     } else if (currentDanger >= 7) {
       typeIndex = Math.floor(Math.random() * 4);
     } else if (currentDanger >= 4) {
@@ -877,16 +1251,16 @@ function spawnEnemy(forceBoss = false) {
   
   const type = enemyTypes[typeIndex];
   
-  // Tính chỉ số theo cấp
-  const hpMult = 1 + (currentDanger * 0.8);
-  const dmgMult = 1 + (currentDanger * 0.5);
-  const spdMult = 1 + (currentDanger * 0.2);
-  const expMult = 1 + (currentDanger * 1.0);
-  const sizeMult = 1 + (currentDanger * 0.1);
+  // Tính chỉ số theo cấp (tăng mạnh hơn)
+  const hpMult = 1 + (currentDanger * 1.0); // +100% mỗi cấp
+  const dmgMult = 1 + (currentDanger * 0.6); // +60% mỗi cấp
+  const spdMult = 1 + (currentDanger * 0.25); // +25% mỗi cấp
+  const expMult = 1 + (currentDanger * 1.2); // +120% mỗi cấp
+  const sizeMult = 1 + (currentDanger * 0.15); // +15% mỗi cấp
   
   // Tìm vị trí spawn
   let x, y;
-  const minDist = safeZoneRadius + (currentDanger * 200);
+  const minDist = safeZoneRadius + (currentDanger * 400);
   do {
     x = Math.random() * mapWidth;
     y = Math.random() * mapHeight;
@@ -907,9 +1281,6 @@ function spawnEnemy(forceBoss = false) {
     attackCooldown: 0
   });
 }
-
-// Spawn boss test
-document.getElementById('spawnBossBtn').onclick = () => spawnEnemy(true);
 
 // Teleport home
 function teleportHome() {
@@ -1031,11 +1402,31 @@ function updateUI() {
   document.getElementById('levelDisplay').innerHTML = player.level;
   document.getElementById('damageDisplay').innerHTML = player.damage;
   document.getElementById('defenseDisplay').innerHTML = player.defense;
+  document.getElementById('critDisplay').innerHTML = Math.round(player.critRate * 100) + '%';
+  document.getElementById('critDamageDisplay').innerHTML = Math.round(player.critDamage * 100) + '%';
+  document.getElementById('specialDisplay').innerHTML = '200%';
   document.getElementById('distanceDisplay').innerHTML = Math.round(distanceFromSpawn / 10) + 'm';
   document.getElementById('dangerDisplay').innerHTML = dangerLevel + '/10';
   
   const bossKillThreshold = Math.max(2, 10 - Math.floor(dangerLevel * 0.8));
   document.getElementById('bossCounterDisplay').innerHTML = bossActive ? '👾 BOSS ACTIVE' : `${bossKillThreshold - killCountForBoss} kill`;
+  
+  // Update guide
+  document.getElementById('guideCritRate').innerHTML = Math.round(player.critRate * 100) + '%';
+  document.getElementById('guideCritDamage').innerHTML = Math.round(player.critDamage * 100) + '%';
+  document.getElementById('guideSpecialDamage').innerHTML = '200%';
+  
+  const cooldownSec = Math.ceil(player.specialCooldown / 60);
+  document.getElementById('guideSpecialCooldown').innerHTML = cooldownSec + ' giây';
+  
+  // Update cooldown bar
+  const cooldownPercent = (player.specialCooldown / player.specialMaxCooldown) * 100;
+  document.getElementById('cooldownFill').style.width = (100 - cooldownPercent) + '%';
+  if (player.specialCooldown <= 0) {
+    document.getElementById('cooldownText').innerHTML = '✨ SPECIAL READY';
+  } else {
+    document.getElementById('cooldownText').innerHTML = `⏳ ${Math.ceil(player.specialCooldown / 60)}s`;
+  }
 }
 
 // Update minimap
@@ -1047,14 +1438,14 @@ function updateMinimap() {
   // Safe zone
   minimapCtx.strokeStyle = '#4aff4a';
   minimapCtx.beginPath();
-  minimapCtx.arc(100, 100, safeZoneRadius / 30, 0, Math.PI * 2);
+  minimapCtx.arc(100, 100, safeZoneRadius / 100, 0, Math.PI * 2);
   minimapCtx.stroke();
   
   // Danger zones
   for (let i = 1; i <= 5; i++) {
     minimapCtx.strokeStyle = `rgba(255,0,0,${0.1 + i * 0.1})`;
     minimapCtx.beginPath();
-    minimapCtx.arc(100, 100, (safeZoneRadius + i * 1000) / 30, 0, Math.PI * 2);
+    minimapCtx.arc(100, 100, (safeZoneRadius + i * 4000) / 100, 0, Math.PI * 2);
     minimapCtx.stroke();
   }
   
@@ -1100,13 +1491,20 @@ document.addEventListener('keydown', (e) => {
   }
   
   if (key === 't') teleportHome();
-  if (key === ' ' && player.level >= 2) {
-    enemies.forEach(e => {
-      if (Math.hypot(player.x - e.x, player.y - e.y) < 150) {
-        e.hp -= player.damage * 2;
-        addDamageNumber(e.x, e.y, player.damage * 2, '#ffaa00', true);
-      }
-    });
+  if (key === ' ') {
+    e.preventDefault();
+    if (player.specialCooldown <= 0 && player.level >= 2) {
+      // Special skill - 200% damage AoE
+      enemies.forEach(e => {
+        if (Math.hypot(player.x - e.x, player.y - e.y) < 150) {
+          const damage = player.damage * 2;
+          e.hp -= damage;
+          addDamageNumber(e.x, e.y, Math.round(damage), '#ffaa00', true);
+        }
+      });
+      player.specialCooldown = player.specialMaxCooldown;
+      cameraShake = 15;
+    }
   }
 });
 
@@ -1198,6 +1596,7 @@ function update() {
   // Cooldowns
   if (player.attackCooldown > 0) player.attackCooldown--;
   if (player.invincibleTimer > 0) player.invincibleTimer--;
+  if (player.specialCooldown > 0) player.specialCooldown--;
   if (cameraShake > 0) cameraShake *= 0.9;
   
   // Movement
@@ -1249,6 +1648,7 @@ function update() {
         player.invincibleTimer = 20;
         addDamageNumber(player.x, player.y, Math.round(dmg), '#ff4444');
         if (player.hp <= 0) {
+          if (currentUser) saveGame();
           alert(`💀 GAME OVER\nLevel: ${player.level}\nKills: ${killCount}`);
           location.reload();
         }
@@ -1381,13 +1781,13 @@ function draw() {
   // Grid
   ctx.strokeStyle = '#2a3a4a';
   ctx.lineWidth = 1;
-  for (let i = 0; i < mapWidth; i += 50) {
+  for (let i = 0; i < mapWidth; i += 100) {
     ctx.beginPath();
     ctx.moveTo(i, 0);
     ctx.lineTo(i, mapHeight);
     ctx.stroke();
   }
-  for (let i = 0; i < mapHeight; i += 50) {
+  for (let i = 0; i < mapHeight; i += 100) {
     ctx.beginPath();
     ctx.moveTo(0, i);
     ctx.lineTo(mapWidth, i);
@@ -1396,34 +1796,34 @@ function draw() {
   
   // Danger zones
   for (let level = 1; level <= 10; level++) {
-    const radius = safeZoneRadius + level * 1000;
-    const opacity = 0.05 + level * 0.03;
+    const radius = safeZoneRadius + level * 2000;
+    const opacity = 0.03 + level * 0.02;
     ctx.strokeStyle = `rgba(255, 0, 0, ${opacity})`;
-    ctx.lineWidth = 2;
-    ctx.setLineDash([20, 20]);
+    ctx.lineWidth = 3;
+    ctx.setLineDash([30, 30]);
     ctx.beginPath();
     ctx.arc(spawnPoint.x, spawnPoint.y, radius, 0, Math.PI * 2);
     ctx.stroke();
     
     if (level % 2 === 0) {
       ctx.fillStyle = `rgba(255, 0, 0, ${opacity + 0.2})`;
-      ctx.font = 'bold 20px Arial';
+      ctx.font = 'bold 24px Arial';
       ctx.setLineDash([]);
-      ctx.fillText(`CẤP ${level}`, spawnPoint.x + radius - 100, spawnPoint.y - 20);
+      ctx.fillText(`CẤP ${level}`, spawnPoint.x + radius - 150, spawnPoint.y - 30);
     }
   }
   ctx.setLineDash([]);
   
   // Safe zone
   ctx.strokeStyle = '#4aff4a';
-  ctx.lineWidth = 3;
-  ctx.setLineDash([10, 10]);
+  ctx.lineWidth = 4;
+  ctx.setLineDash([15, 15]);
   ctx.beginPath();
   ctx.arc(spawnPoint.x, spawnPoint.y, safeZoneRadius, 0, Math.PI * 2);
   ctx.stroke();
   ctx.fillStyle = '#4aff4a';
-  ctx.font = 'bold 24px Arial';
-  ctx.fillText('🏠 NHÀ', spawnPoint.x - 60, spawnPoint.y - 50);
+  ctx.font = 'bold 30px Arial';
+  ctx.fillText('🏠 NHÀ', spawnPoint.x - 80, spawnPoint.y - 70);
   ctx.setLineDash([]);
   
   // Drops
@@ -1522,28 +1922,28 @@ function draw() {
       }
       
       ctx.fillStyle = 'white';
-      ctx.font = 'bold 20px Arial';
+      ctx.font = 'bold 24px Arial';
       ctx.strokeStyle = 'black';
-      ctx.lineWidth = 3;
+      ctx.lineWidth = 4;
       ctx.textAlign = 'center';
-      ctx.strokeText(`BOSS CẤP ${e.dangerLevel}`, e.x, e.y - e.r - 40);
-      ctx.fillText(`BOSS CẤP ${e.dangerLevel}`, e.x, e.y - e.r - 40);
+      ctx.strokeText(`BOSS CẤP ${e.dangerLevel}`, e.x, e.y - e.r - 50);
+      ctx.fillText(`BOSS CẤP ${e.dangerLevel}`, e.x, e.y - e.r - 50);
     }
     
     // Health bar
     const hpPercent = e.hp / e.maxHp;
     ctx.fillStyle = '#ff4444';
-    ctx.fillRect(e.x - 30, e.y - e.r - 15, 60, 8);
+    ctx.fillRect(e.x - 35, e.y - e.r - 20, 70, 10);
     ctx.fillStyle = '#44ff44';
-    ctx.fillRect(e.x - 30, e.y - e.r - 15, 60 * hpPercent, 8);
+    ctx.fillRect(e.x - 35, e.y - e.r - 20, 70 * hpPercent, 10);
     
     // Name
     ctx.fillStyle = 'white';
-    ctx.font = '14px Arial';
+    ctx.font = '16px Arial';
     ctx.strokeStyle = 'black';
-    ctx.lineWidth = 2;
-    ctx.strokeText(`${e.type} Lv.${e.dangerLevel}`, e.x, e.y - e.r - 25);
-    ctx.fillText(`${e.type} Lv.${e.dangerLevel}`, e.x, e.y - e.r - 25);
+    ctx.lineWidth = 3;
+    ctx.strokeText(`${e.type} Lv.${e.dangerLevel}`, e.x, e.y - e.r - 30);
+    ctx.fillText(`${e.type} Lv.${e.dangerLevel}`, e.x, e.y - e.r - 30);
   });
   
   // Player
@@ -1564,10 +1964,10 @@ function draw() {
   
   // Damage numbers
   damageNumbers.forEach(d => {
-    ctx.font = d.isCrit ? 'bold 24px Arial' : '20px Arial';
+    ctx.font = d.isCrit ? 'bold 28px Arial' : '24px Arial';
     ctx.fillStyle = d.color;
     ctx.shadowColor = 'black';
-    ctx.shadowBlur = 4;
+    ctx.shadowBlur = 5;
     ctx.fillText(d.amount, d.x - camX, d.y - camY - d.life/2);
   });
   ctx.shadowBlur = 0;
